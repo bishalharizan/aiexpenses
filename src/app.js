@@ -14,6 +14,10 @@ app.use(helmet())
 app.use(cors({ origin: true, credentials: true }))
 app.use(express.json())
 
+app.get('/', (req, res) => {
+	return res.redirect('/api/docs')
+})
+
 app.get('/api/health', (req, res) => {
 	res.json({ ok: true })
 })
