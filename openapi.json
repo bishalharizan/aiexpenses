@@ -1,0 +1,75 @@
+{
+  "openapi": "3.0.3",
+  "info": { "title": "AI Expenses API", "version": "0.1.0" },
+  "servers": [{ "url": "http://localhost:4000" }],
+  "components": {
+    "securitySchemes": { "bearerAuth": { "type": "http", "scheme": "bearer", "bearerFormat": "JWT" } },
+    "schemas": {
+      "Expense": {
+        "type": "object",
+        "properties": {
+          "_id": { "type": "string" },
+          "title": { "type": "string" },
+          "category": { "type": "string", "enum": ["FOOD","TRAVEL","UTILITIES","ENTERTAINMENT","OTHER"] },
+          "amount": { "type": "number" },
+          "taxPercent": { "type": "number" },
+          "isRecurring": { "type": "boolean" },
+          "spentAt": { "type": "string", "format": "date-time" },
+          "totalWithTax": { "type": "number" }
+        }
+      }
+    }
+  },
+  "paths": {
+    "/api/health": { "get": { "summary": "Health", "responses": { "200": { "description": "OK" } } } },
+    "/api/auth/register": {
+      "post": {
+        "summary": "Register",
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "required": ["username","email","password"], "properties": { "username": {"type":"string"}, "email": {"type":"string"}, "password": {"type":"string"} } } } } },
+        "responses": { "201": { "description": "Created" }, "409": { "description": "Exists" } }
+      }
+    },
+    "/api/auth/login": {
+      "post": {
+        "summary": "Login",
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "required": ["username","password"], "properties": { "username": {"type":"string"}, "password": {"type":"string"} } } } } },
+        "responses": { "200": { "description": "OK" }, "401": { "description": "Invalid" } }
+      }
+    },
+    "/api/expenses": {
+      "get": {
+        "summary": "List expenses",
+        "security": [{ "bearerAuth": [] }],
+        "parameters": [
+          {"name":"page","in":"query","schema":{"type":"integer"}},
+          {"name":"limit","in":"query","schema":{"type":"integer"}},
+          {"name":"category","in":"query","schema":{"type":"string"}},
+          {"name":"search","in":"query","schema":{"type":"string"}},
+          {"name":"recurring","in":"query","schema":{"type":"string","enum":["true","false"]}},
+          {"name":"sortBy","in":"query","schema":{"type":"string"}},
+          {"name":"sortDir","in":"query","schema":{"type":"string","enum":["asc","desc"]}}
+        ],
+        "responses": { "200": { "description": "OK" } }
+      },
+      "post": {
+        "summary": "Create expense",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "required": ["title","category","amount","taxPercent"], "properties": { "title": {"type":"string"}, "category": {"type":"string"}, "amount": {"type":"number"}, "taxPercent": {"type":"number"}, "isRecurring": {"type":"boolean"}, "spentAt": {"type":"string","format":"date-time"} } } } } },
+        "responses": { "201": { "description": "Created" }, "400": { "description": "Bad request" } }
+      }
+    },
+    "/api/expenses/{id}": {
+      "get": { "summary": "Get expense", "security": [{"bearerAuth":[]}], "parameters": [{"name":"id","in":"path","required":true,"schema":{"type":"string"}}], "responses": {"200": {"description":"OK"}, "404": {"description":"Not found"}} },
+      "put": { "summary": "Update expense", "security": [{"bearerAuth":[]}], "parameters": [{"name":"id","in":"path","required":true,"schema":{"type":"string"}}], "requestBody": {"required": true, "content": {"application/json": {"schema": {"type":"object"}}}}, "responses": {"200": {"description":"OK"}} },
+      "delete": { "summary": "Delete expense", "security": [{"bearerAuth":[]}], "parameters": [{"name":"id","in":"path","required":true,"schema":{"type":"string"}}], "responses": {"200": {"description":"OK"}} }
+    },
+    "/api/ai/suggest-category": {
+      "post": {
+        "summary": "Suggest category",
+        "security": [{ "bearerAuth": [] }],
+        "requestBody": { "required": true, "content": { "application/json": { "schema": { "type": "object", "required": ["title"], "properties": { "title": {"type":"string"}, "notes": {"type":"string"} } } } } },
+        "responses": { "200": { "description": "OK" } }
+      }
+    }
+  }
+}
