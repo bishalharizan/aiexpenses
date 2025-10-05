@@ -2,7 +2,7 @@ import express from 'express'
 import cors from 'cors'
 import helmet from 'helmet'
 import swaggerUi from 'swagger-ui-express'
-import openapi from '../openapi.json' assert { type: 'json' }
+import openapi from '../openapi.json' with { type: 'json' }
 
 import authRoutes from './routes/auth.js'
 import expenseRoutes from './routes/expenses.js'
